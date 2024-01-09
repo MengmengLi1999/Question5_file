@@ -1,0 +1,7 @@
+{
+  "total_visits": 0,
+  "daily_visits": {},
+  "last_reset": "2024-01-01"
+}
+
+

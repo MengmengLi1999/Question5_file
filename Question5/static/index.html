@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IoT Monitoring and Video Streaming</title>
+    <style>
+        #visitData {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: white;
+            padding: 20px;
+            border: 1px solid black;
+        }
+        #video-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        #video-container video,
+        #video-container img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+    <script type="text/javascript">
+        // 更新访问者数据
+        function updateVisitorData() {
+            fetch('http://127.0.0.1:8000/data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalVisits').innerText = '总访问量: ' + data.total_visits;
+                    var today = new Date().toISOString().split('T')[0];
+                    document.getElementById('dailyVisits').innerText = '今日访问量: ' + (data.daily_visits[today] || 0);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        setInterval(updateVisitorData, 1000);  // 每秒更新一次数据
+
+        // 加载 IoT 监测点并更新视频源
+        function loadIoTPoints() {
+            fetch('/iot-points')
+                .then(response => response.json())
+                .then(data => {
+                    const pointsContainer = document.getElementById('iot-points');
+                    for (const [id, path] of Object.entries(data)) {
+                        const button = document.createElement('button');
+                        button.textContent = `IoT Point ${id}`;
+                        button.onclick = () => {
+                            const video = document.getElementById('video-stream');
+                            video.src = `/video/${id}`;
+                            video.load();
+                            video.play();
+                        };
+                        pointsContainer.appendChild(button);
+                    }
+                });
+        }
+
+        // 在页面加载时调用函数
+        window.onload = function() {
+            loadIoTPoints();
+            updateVisitorData();
+        };
+    </script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>IoT Monitoring and Video Streaming</h1>
+    <div id="video-container">
+        <video id="video-stream" width="640" height="480" controls autoplay>
+            <source src="../static/videos/lmm.mp4" type="video/mp4">
+            Your browser does not support the video tag. 您的浏览器不支持视频标签。
+        </video>
+        <!-- 初始视频，可由 IoT 监测点覆盖 -->
+    </div>
+
+    <div id="iot-points">
+        <!-- IoT 监测点按钮将被加载到这里 -->
+    </div>
+
+    <div id="visitData">
+        <div id="totalVisits"></div>
+        <div id="dailyVisits"></div>
+    </div>
+    <script type="text/javascript">
+        // WebSocket 集成
+         var socket = io.connect('http://' + document.domain + ':' + location.port);
+    socket.on('iot_data', function(data) {
+        console.log(data);  // 在控制台打印接收到的数据
+        alert(JSON.stringify(data));  // 弹窗显示数据
+    });
+    </script>
+</body>
+</html>
+

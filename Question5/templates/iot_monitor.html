@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IoT Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        #iotData {
+            background-color: #fff;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>IoT Monitoring Data</h1>
+    <div id="iotData">Loading data...</div>
+    <div id="updateNotice"></div>
+
+    <script>
+        function updateIoTData() {
+            fetch('http://127.0.0.1:5000/data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('iotData').innerText = JSON.stringify(data, null, 2);
+                    document.getElementById('updateNotice').innerText = 'Data updated at: ' + new Date().toLocaleTimeString();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('updateNotice').innerText = 'Error fetching data.';
+                });
+        }
+
+        setInterval(updateIoTData, 1000); // 每秒更新一次
+    </script>
+</body>
+</html>

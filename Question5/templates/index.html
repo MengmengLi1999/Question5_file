@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head><link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <meta charset="utf-8" />
+    <title>Online Video</title>
+    <style>
+        #visitData {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: white;
+            padding: 20px;
+            border: 1px solid black;
+        }
+        #video-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #video-container video,
+        #video-container img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="video-container">
+        <video width="320" height="240" controls autoplay>
+            <source src="../static/videos/lmm.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+<!--        <img src="../static/images/lmm.png" alt="LMM PNG 图片">-->
+    </div>
+
+    <div id="visitData">
+        <div id="totalVisits"></div>
+        <div id="dailyVisits"></div>
+    </div>
+
+    <script type="text/javascript">
+        function updateVisitorData() {
+            fetch('http://127.0.0.1:5000/data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalVisits').innerText = '总访问量: ' + data.total_visits;
+                    var today = new Date().toISOString().split('T')[0];
+                    document.getElementById('dailyVisits').innerText = '今日访问量: ' + (data.daily_visits[today] || 0);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        setInterval(updateVisitorData, 1000);  // 每秒更新一次数据
+    </script>
+
+</body>
+</html>
